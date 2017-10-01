@@ -13,20 +13,20 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
-  console.log('Socket connected');
-
-  socket.emit('newMessage', {
-    from: 'chatUser',
-    text: 'this is a test chat',
-    createdAt: 54321
-  });
+  console.log('New user connected');
 
   socket.on('disconnect', () => {
-    console.log('Socket disconnected');
+    console.log('User disconnected');
   });
 
   socket.on('createMessage', (message) => {
     console.log('createMessage', message);
+    // emits to every connection
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createdAt: new Date().getTime()
+    })
   })
 });
 
