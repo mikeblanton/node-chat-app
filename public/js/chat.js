@@ -26,13 +26,11 @@ socket.on('connect', function () {
       window.location.href = '/';
     }
     else {
-      console.log('no error');
     }
   });
 });
 
 socket.on('disconnect', function () {
-  console.log('Disconnected from server');
 });
 
 socket.on('updateUserList', function (users) {
@@ -76,7 +74,6 @@ jQuery('#message-form').on('submit', function (e) {
   var messageTextbox = jQuery('[name=message]');
 
   socket.emit('createMessage', {
-    from: 'User',
     text: messageTextbox.val()
   }, function() {
     messageTextbox.val('');
@@ -93,7 +90,6 @@ locationButton.on('click', function () {
 
   navigator.geolocation.getCurrentPosition(function (position) {
     socket.emit('createLocationMessage', {
-      from: 'User',
       lat: position.coords.latitude,
       lng: position.coords.longitude
     }, function () {

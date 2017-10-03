@@ -18,8 +18,6 @@ var users = new Users();
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
-  console.log('New user connected');
-
   socket.on('disconnect', () => {
     var user = users.removeUser(socket.id);
 
@@ -27,7 +25,6 @@ io.on('connection', (socket) => {
       io.to(user.room).emit('updateUserList', users.getUserList(user.room));
       io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room`));
       socket.leave(user.room);
-      console.log('User disconnected');
     }
   });
 
@@ -50,14 +47,18 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createMessage', (message, callback) => {
-    console.log('createMessage', message);
-    // emits to every connection
-    io.emit('newMessage', generateMessage(message.from, message.text));
-    callback('This is from the server');
+    var user = users.getUser(socket.id);
+    if (user && isRealString(message.text)) {
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+    callback();
   });
 
   socket.on('createLocationMessage', (coords, callback) => {
-    io.emit('newLocationMessage', generateLocationMessage(coords.from, coords.lat, coords.lng));
+    var user = users.getUser(socket.id);
+    if (user) {
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.lat, coords.lng));
+    }
     callback();
   });
 });
